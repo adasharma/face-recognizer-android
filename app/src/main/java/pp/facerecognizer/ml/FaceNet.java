@@ -34,7 +34,7 @@ import pp.facerecognizer.env.ImageUtils;
 public class FaceNet {
     private static final String MODEL_FILE = "facenet.tflite";
 
-    public static final int EMBEDDING_SIZE = 512;
+    public static final int EMBEDDING_SIZE = 48*48;
 
     private static final int INPUT_SIZE_HEIGHT = 160;
     private static final int INPUT_SIZE_WIDTH = 160;

@@ -174,7 +174,7 @@ public class MultiBoxTracker {
                         (int) (multiplier * (rotated ? frameHeight : frameWidth)),
                         (int) (multiplier * (rotated ? frameWidth : frameHeight)),
                         sensorOrientation,
-                        false);
+                        false, true);
         for (final TrackedRecognition recognition : trackedObjects) {
             final RectF trackedPos =
                     (objectTracker != null)

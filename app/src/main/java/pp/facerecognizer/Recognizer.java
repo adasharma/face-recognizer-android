@@ -24,15 +24,18 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
+import android.util.Log;
 
 import java.io.FileDescriptor;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 import pp.facerecognizer.env.FileUtils;
 import pp.facerecognizer.ml.BlazeFace;
+import pp.facerecognizer.ml.Expressions;
 import pp.facerecognizer.ml.FaceNet;
 import pp.facerecognizer.ml.LibSVM;
 
@@ -60,7 +63,9 @@ public class Recognizer {
          */
         private final Float confidence;
 
-        /** Optional location within the source image for the location of the recognized object. */
+        /**
+         * Optional location within the source image for the location of the recognized object.
+         */
         private RectF location;
 
         Recognition(
@@ -115,18 +120,21 @@ public class Recognizer {
     private BlazeFace blazeFace;
     private FaceNet faceNet;
     private LibSVM svm;
+    private Expressions expressions;
 
     private List<String> classNames;
 
-    private Recognizer() {}
+    private Recognizer() {
+    }
 
-    static Recognizer getInstance (AssetManager assetManager) throws Exception {
+    static Recognizer getInstance(AssetManager assetManager) throws Exception {
         if (recognizer != null) return recognizer;
 
         recognizer = new Recognizer();
         recognizer.blazeFace = BlazeFace.create(assetManager);
         recognizer.faceNet = FaceNet.create(assetManager);
         recognizer.svm = LibSVM.getInstance();
+        recognizer.expressions = Expressions.create(assetManager);
         recognizer.classNames = FileUtils.readLabel(FileUtils.LABEL_FILE);
 
         return recognizer;
@@ -153,15 +161,36 @@ public class Recognizer {
                 Rect rect = new Rect();
                 rectF.round(rect);
 
-                FloatBuffer buffer = faceNet.getEmbeddings(bitmap, rect);
-                LibSVM.Prediction prediction = svm.predict(buffer);
+//                FloatBuffer buffer = faceNet.getEmbeddings(bitmap, rect);
+//                LibSVM.Prediction prediction = svm.predict(buffer);
+
+//                FloatBuffer emotion_predictions = expressions.predict(buffer);
+
+               /* FloatBuffer emotion_predictions = expressions.predict(buffer);
+                float[] dst = new float[6];
+                emotion_predictions.get(dst);
+                Log.d("Adarsh", "recognizeImage :: expressions.predict(buffer): " + Arrays.toString(dst));
+
+                // this is how you get back the predicted value from outputs
+                float sum_of_predictions = 0;
+                String[] emotion_labels = new String[]{"angry", "disgust", "fear", "happy", "sad", "surprise", "neutral"};
+                for (int k = 0; k < emotion_predictions.limit(); ++k) {
+                    sum_of_predictions = sum_of_predictions + emotion_predictions.get(k);
+                }
+                Log.d("Adarsh", "recognizeImage :: sum_of_predictions: " + sum_of_predictions);
+
+                for (int i = 0; i < emotion_labels.length; i++) {
+                    String emotion_label = emotion_labels[i];
+                    float emotion_prediction = 100 * emotion_predictions.get(i) / sum_of_predictions;
+                    Log.d("Adarsh", "prediction=" + emotion_label + " " + emotion_prediction);
+                }*/
 
                 matrix.mapRect(rectF);
-                int index = prediction.getIndex();
+//                int index = prediction.getIndex();
 
-                String name = classNames.get(index);
+//                String name = classNames.get(index);
                 Recognition result =
-                        new Recognition("" + index, name, prediction.getProb(), rectF);
+                        new Recognition("" + 0, "Human", 0.0f, rectF);
                 mappedRecognitions.add(result);
             }
             return mappedRecognitions;
@@ -208,11 +237,12 @@ public class Recognizer {
         return bitmap;
     }
 
-    void enableStatLogging(final boolean debug){
+    void enableStatLogging(final boolean debug) {
     }
 
     void close() {
         blazeFace.close();
         faceNet.close();
+        expressions.close();
     }
 }

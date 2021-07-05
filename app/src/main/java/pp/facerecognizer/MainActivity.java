@@ -158,7 +158,7 @@ public class MainActivity extends CameraActivity implements OnImageAvailableList
                 ImageUtils.getTransformationMatrix(
                         previewWidth, previewHeight,
                         CROP_WIDTH, CROP_HEIGHT,
-                        sensorOrientation, false);
+                        sensorOrientation, false,true);
 
         cropToFrameTransform = new Matrix();
         frameToCropTransform.invert(cropToFrameTransform);

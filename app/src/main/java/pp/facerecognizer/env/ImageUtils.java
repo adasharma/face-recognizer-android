@@ -170,10 +170,10 @@ public class ImageUtils {
      * input and output must already be allocated and non-null. For efficiency, no error checking is
      * performed.
      *
-     * @param input The array of YUV 4:2:0 input data.
-     * @param output A pre-allocated array for the ARGB 8:8:8:8 output data.
-     * @param width The width of the input image.
-     * @param height The height of the input image.
+     * @param input    The array of YUV 4:2:0 input data.
+     * @param output   A pre-allocated array for the ARGB 8:8:8:8 output data.
+     * @param width    The width of the input image.
+     * @param height   The height of the input image.
      * @param halfSize If true, downsample to 50% in each dimension, otherwise not.
      */
     private static native void convertYUV420SPToARGB8888(
@@ -188,10 +188,10 @@ public class ImageUtils {
      * @param u
      * @param v
      * @param uvPixelStride
-     * @param width The width of the input image.
-     * @param height The height of the input image.
-     * @param halfSize If true, downsample to 50% in each dimension, otherwise not.
-     * @param output A pre-allocated array for the ARGB 8:8:8:8 output data.
+     * @param width         The width of the input image.
+     * @param height        The height of the input image.
+     * @param halfSize      If true, downsample to 50% in each dimension, otherwise not.
+     * @param output        A pre-allocated array for the ARGB 8:8:8:8 output data.
      */
     private static native void convertYUV420ToARGB8888(
             byte[] y,
@@ -210,9 +210,9 @@ public class ImageUtils {
      * and height. The input and output must already be allocated and non-null.
      * For efficiency, no error checking is performed.
      *
-     * @param input The array of YUV 4:2:0 input data.
+     * @param input  The array of YUV 4:2:0 input data.
      * @param output A pre-allocated array for the RGB 5:6:5 output data.
-     * @param width The width of the input image.
+     * @param width  The width of the input image.
      * @param height The height of the input image.
      */
     private static native void convertYUV420SPToRGB565(
@@ -223,9 +223,9 @@ public class ImageUtils {
      * instance, in creating data to feed the classes that rely on raw camera
      * preview frames.
      *
-     * @param input An array of input pixels in ARGB8888 format.
+     * @param input  An array of input pixels in ARGB8888 format.
      * @param output A pre-allocated array for the YUV420SP output data.
-     * @param width The width of the input image.
+     * @param width  The width of the input image.
      * @param height The height of the input image.
      */
     private static native void convertARGB8888ToYUV420SP(
@@ -236,9 +236,9 @@ public class ImageUtils {
      * instance, in creating data to feed the classes that rely on raw camera
      * preview frames.
      *
-     * @param input An array of input pixels in RGB565 format.
+     * @param input  An array of input pixels in RGB565 format.
      * @param output A pre-allocated array for the YUV420SP output data.
-     * @param width The width of the input image.
+     * @param width  The width of the input image.
      * @param height The height of the input image.
      */
     private static native void convertRGB565ToYUV420SP(
@@ -248,14 +248,14 @@ public class ImageUtils {
      * Returns a transformation matrix from one reference frame into another.
      * Handles cropping (if maintaining aspect ratio is desired) and rotation.
      *
-     * @param srcWidth Width of source frame.
-     * @param srcHeight Height of source frame.
-     * @param dstWidth Width of destination frame.
-     * @param dstHeight Height of destination frame.
-     * @param applyRotation Amount of rotation to apply from one frame to another.
-     *  Must be a multiple of 90.
+     * @param srcWidth            Width of source frame.
+     * @param srcHeight           Height of source frame.
+     * @param dstWidth            Width of destination frame.
+     * @param dstHeight           Height of destination frame.
+     * @param applyRotation       Amount of rotation to apply from one frame to another.
+     *                            Must be a multiple of 90.
      * @param maintainAspectRatio If true, will ensure that scaling in x and y remains constant,
-     * cropping the image if necessary.
+     *                            cropping the image if necessary.
      * @return The transformation fulfilling the desired requirements.
      */
     public static Matrix getTransformationMatrix(
@@ -264,7 +264,8 @@ public class ImageUtils {
             final int dstWidth,
             final int dstHeight,
             final int applyRotation,
-            final boolean maintainAspectRatio) {
+            final boolean maintainAspectRatio,
+            final boolean adjustForMirrorImage) {
         final Matrix matrix = new Matrix();
 
         if (applyRotation != 0) {
@@ -300,6 +301,11 @@ public class ImageUtils {
                 // Scale exactly to fill dst from src.
                 matrix.postScale(scaleFactorX, scaleFactorY);
             }
+        }
+
+        if (adjustForMirrorImage) {
+            //mirror matrix for front camera adjustments
+            matrix.postScale(-1, 1);
         }
 
         if (applyRotation != 0) {
